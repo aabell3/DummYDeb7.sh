@@ -368,10 +368,9 @@ crl-verify crl.pem" >> /etc/openvpn/server.conf
 dev tun
 dev-type tun
 proto tcp
-sndbuf 0
-rcvbuf 0
+sndbuf 100000
+rcvbuf 100000
 remote $IP $PORT
-resolv-retry infinite
 nobind
 persist-tun
 cipher AES-256-CBC
