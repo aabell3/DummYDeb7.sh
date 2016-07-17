@@ -236,8 +236,8 @@ else
 	echo "port $PORT
 proto tcp
 dev tun
-sndbuf 0
-rcvbuf 0
+sndbuf 100000
+rcvbuf 100000
 ca ca.crt
 cert server.crt
 key server.key
@@ -366,19 +366,30 @@ crl-verify crl.pem" >> /etc/openvpn/server.conf
 	# client-common.txt is created so we have a template to add further users later
 	echo "client
 dev tun
+dev-type tun
 proto tcp
 sndbuf 0
 rcvbuf 0
 remote $IP $PORT
 resolv-retry infinite
 nobind
-persist-key
 persist-tun
-remote-cert-tls server
 cipher AES-256-CBC
-comp-lzo
-setenv opt block-outside-dns
+auth SHA256
+verb 2
+mute 3
+push-peer-info
+ping 10
+ping-restart 60
+hand-window 70
+server-poll-timeout 4
+reneg-sec 2592000
+sndbuf 100000
+rcvbuf 100000
+remote-cert-tls server
+comp-lzo no
 key-direction 1
+auth-user-pass
 verb 3" > /etc/openvpn/client-common.txt
 	# Generates the custom client.ovpn
 	newclient "$CLIENT"
