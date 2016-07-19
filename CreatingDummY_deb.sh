@@ -2,7 +2,6 @@
 #
 # Script Copyright Fadhil Morshidi
 # ==========================
-# 
 
 # initialisasi var
 export DEBIAN_FRONTEND=noninteractive
