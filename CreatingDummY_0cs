@@ -3,7 +3,7 @@ echo 'AUTOSCRIPT OCS PANEL'
 echo 'UPDATE REPOSITORY'
 apt-get update
 clear
-echo 'AUTOSCRIPT BY CYBER-SHOT SSH'
+echo 'CreatingDummY'
 clear
 echo 'INSTALL PACKAGE'
 apt-get --assume-yes install libxml-parser-perl
@@ -45,11 +45,11 @@ service nginx restart
 rm -r /root/ocs
 clear
 rm -rf ~/.bash_history && history -c
-echo "     OCS PANEL [ www.facebook.com/cyber.shot.ssh]"
+echo "            OCS PANEL"
 echo "----------------------------------------"
 echo "      PLEASE REBOOT TAKE EFFECT !"
 echo "========================================"
-echo "        SERVICE CONTACT NUMBER"
-echo "           telegram.me/cyber_shot"
+echo "      SERVICE CONTACT NUMBER"
+echo "           016-4968761" 
 echo "========================================"
 rm -f /root/OCS
