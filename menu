@@ -1,15 +1,7 @@
 #!/bin/bash
-curl -s -o ip.txt http://192.81.215.165/source/ip.txt
-IPSAYA=`wget -qO- ipv4.icanhazip.com`
-CARI=`grep $IPSAYA ip.txt`
-if [ "$CARI" = "" ]
-then
-clear
-echo "IP VPS ANDA TIDAK BERDAFTAR."
-echo "RM 40 ONLY FOR SCRIPT [fb.com/cyber.shot.ssh]"
-rm -rf ip.txt
-exit
-fi
+
+echo "Pm +6016-4968761 for service"
+echo "script Powerd By Creating DummY"
 
 IPSAYA=`wget -qO- ipv4.icanhazip.com`
 rm -rf ip.txt
@@ -31,18 +23,18 @@ echo "Total amount of swap : $swap MB"
 echo "System uptime : $up"
 echo ""
 echo "-----------------------------------------------------------------"
-echo "Pilih perintah di bawah ini"
+echo "Choose Your Command"
 echo "1. Create ID User"
-echo "2. Senarai ID"
-echo "3. Monitor User Login ID"
+echo "2. List ID"
+echo "3. Monitor User Login"
 echo "4. Renew ID User"
-echo "5. Create ID 30 Minit"
+echo "5. Create ID 30 Minitues"
 echo "6. SpeedTest VPS"
 echo "7. Monitor Traffic Data"
 echo "8. Reboot VPS"
 echo "9. Exit"
 echo ""
-read -p "Pilih Dengan Angka [1-9] : " Select
+read -p "choose [1-9] : " Select
 case "$Select" in
 	"1" )
 	clear
