@@ -1,7 +1,7 @@
 #!/bin/bash
 
-Script Copyright Fadhil Morshidi
-==========================
+#Script Copyright Fadhil Morshidi
+#==========================
 
 # initialisasi var
 export DEBIAN_FRONTEND=noninteractive
