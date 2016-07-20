@@ -1,0 +1,96 @@
+#!/bin/bash
+curl -s -o ip.txt http://192.81.215.165/source/ip.txt
+IPSAYA=`wget -qO- ipv4.icanhazip.com`
+CARI=`grep $IPSAYA ip.txt`
+if [ "$CARI" = "" ]
+then
+clear
+echo "IP VPS ANDA TIDAK BERDAFTAR."
+echo "RM 40 ONLY FOR SCRIPT [fb.com/cyber.shot.ssh]"
+rm -rf ip.txt
+exit
+fi
+
+IPSAYA=`wget -qO- ipv4.icanhazip.com`
+rm -rf ip.txt
+clear
+cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo )
+cores=$( awk -F: '/model name/ {core++} END {print core}' /proc/cpuinfo )
+freq=$( awk -F: ' /cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo )
+tram=$( free -m | awk 'NR==2 {print $2}' )
+swap=$( free -m | awk 'NR==4 {print $2}' )
+up=$(uptime|awk '{ $1=$2=$(NF-6)=$(NF-5)=$(NF-4)=$(NF-3)=$(NF-2)=$(NF-1)=$NF=""; print }')
+
+echo "--------------- MENU SCRIPT FOR - $IPSAYA ---------------"
+echo ""
+echo "CPU model : $cname"
+echo "Number of cores : $cores"
+echo "CPU frequency : $freq MHz"
+echo "Total amount of ram : $tram MB"
+echo "Total amount of swap : $swap MB"
+echo "System uptime : $up"
+echo ""
+echo "-----------------------------------------------------------------"
+echo "Pilih perintah di bawah ini"
+echo "1. Create ID User"
+echo "2. Senarai ID"
+echo "3. Monitor User Login ID"
+echo "4. Renew ID User"
+echo "5. Create ID 30 Minit"
+echo "6. SpeedTest VPS"
+echo "7. Monitor Traffic Data"
+echo "8. Reboot VPS"
+echo "9. Exit"
+echo ""
+read -p "Pilih Dengan Angka [1-9] : " Select
+case "$Select" in
+	"1" )
+	clear
+	user-add
+	exit
+		;;
+	"2" )
+	clear
+	user-list
+	exit
+		;;
+	"3" )
+	clear
+	user-login
+	exit
+		;;
+	"4" )
+	clear
+	renew
+	exit
+		;;
+	"5" )
+	clear
+	trial
+	exit
+		;;
+  "6" )
+	 clear
+	 speed
+	 exit
+   ;;
+  "7" )
+	 clear
+	 vnstat
+	 exit
+   ;;
+  "8" )
+	 clear
+	 reboot
+	 exit
+   ;;
+  "9" )
+	 clear
+	 exit
+   ;;
+	*	)
+    clear
+    echo "Tiada Dalam Senarai"
+    exit
+    ;; 
+esac
