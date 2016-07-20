@@ -213,22 +213,28 @@ wget -O ps_mem.py "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/f
 wget -O dropmon "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/null/dropmon.sh"
 wget -O user-login.sh "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/freak/user-login.sh"
 wget -O user-expired.sh "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/freak/user-expired.sh"
-#wget -O userlimit.sh "https://raw.githubusercontent.com/suryadewa/fornesiavps/fns/limit.sh"
+wget -O userlimit.sh "https://raw.githubusercontent.com/suryadewa/fornesiavps/fns/limit.sh"
 wget -O user-list.sh "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/freak/user-list.sh"
 wget -O /etc/issue.net "https://raw.githubusercontent.com/creatingdummy/FNS_Debian7/fornesia.com/null/banner"
+wget -O /usr/bin/menu https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/master/menu             
 echo "0 0 * * * root /root/user-expired.sh" > /etc/cron.d/user-expired
 #echo "@reboot root /root/userlimit.sh" > /etc/cron.d/userlimit
 echo "0 0 * * * root /usr/bin/reboot" > /etc/cron.d/reboot
 echo "* * * * * service dropbear restart" > /etc/cron.d/dropbear
-#sed -i '$ i\screen -AmdS check /root/autokill.sh' /etc/rc.local
+sed -i '$ i\screen -AmdS check /root/autokill.sh' /etc/rc.local
+cd /usr/bin
 chmod +x bench-network.sh
 chmod +x speedtest_cli.py
 chmod +x ps_mem.py
 chmod +x user-login.sh
 chmod +x user-expired.sh
-#chmod +x userlimit.sh
+chmod +x userlimit.sh
 chmod +x dropmon
 chmod +x user-list.sh
+chmod +x menu
+cd
+echo "0 0 * * * root /usr/bin/gusur" >> /etc/crontab
+service cron restart
 
 # finishing
 chown -R www-data:www-data /home/vps/public_html
