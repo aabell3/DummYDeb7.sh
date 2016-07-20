@@ -1,0 +1,25 @@
+#!/bin/bash
+# download script
+cd
+
+curl http://192.81.215.165/repo/user-add > /usr/bin/user-add
+curl http://192.81.215.165/repo/trial > /usr/bin/trial
+curl http://192.81.215.165/repo/user-list > /usr/bin/user-list
+curl http://192.81.215.165/repo/user-login > /usr/bin/user-login
+curl http://192.81.215.165/repo/renew > /usr/bin/renew
+curl http://192.81.215.165/repo/minggat > /usr/bin/minggat
+curl http://192.81.215.165/repo/gusur > /usr/bin/gusur
+curl https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/master/menu > /usr/bin/menu
+
+cd /usr/bin
+chmod +x user-add
+chmod +x user-list
+chmod +x user-login
+chmod +x renew
+chmod +x trial
+chmod +x minggat
+chmod +x gusur
+chmod +x menu
+cd
+echo "0 0 * * * root /usr/bin/gusur" >> /etc/crontab
+service cron restart
