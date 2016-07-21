@@ -1,4 +1,22 @@
 #!/bin/bash
+# initialisasi var
+
+export DEBIAN_FRONTEND=noninteractive
+OS=`uname -m`;
+MYIP=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0'`;
+MYIP=$(wget -qO- ipv4.icanhazip.com);
+MYIP2="s/xxxxxxxxx/$MYIP/g";
+ether=`ifconfig | cut -c 1-8 | sort | uniq -u | grep venet0 | grep -v venet0:`
+if [ "$ether" = "" ]; then
+ether=eth0
+fi
+
+MYIP=$(ifconfig | grep 'inet addr:' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | cut -d: -f2 | awk '{ print $1}' | head -1)
+if [ "$MYIP" = "" ]; then
+MYIP=$(wget -qO- ipv4.icanhazip.com)
+fi
+MYIP2="s/xxxxxxxxx/$MYIP/g";
+
 
 # go to root
 cd
@@ -11,7 +29,7 @@ sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 apt-get update; apt-get -y install wget curl
 
 # set time GMT +7
-ln -fs /usr/share/zoneinfo/Asia/Singapore /etc/localtime
+ln -fs /usr/share/zoneinfo/Asia/Malaysia /etc/localtime
 
 # set locale
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
@@ -175,6 +193,7 @@ curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/f8ebee11
 curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/master/gusur" > /usr/bin/gusur
 curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/4d23ee7a313d28b61284a68178e48f1576f071ad/menu" > /usr/bin/menu
 wget -O speedtest-cli "https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py"
+wget -O /etc/issue.net "https://github.com/creatingdummy/auto/blob/master/null/banner"
 
 cd /usr/bin
 chmod +x user-add
