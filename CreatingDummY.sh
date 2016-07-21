@@ -56,7 +56,7 @@ rm /etc/nginx/sites-enabled/default
 rm /etc/nginx/sites-available/default
 wget -O /etc/nginx/nginx.conf "https://raw.github.com/ccpbcrawler/autoscript/master/conf/nginx.conf"
 mkdir -p /home/vps/public_html
-echo "<pre>SETUP BY JOHNKER | johnker.cf</pre>" > /home/vps/public_html/index.html
+echo "<pre>SETUP BY DummY | CreatingDummY</pre>" > /home/vps/public_html/index.html
 echo "<?php phpinfo(); ?>" > /home/vps/public_html/info.php
 wget -O /etc/nginx/conf.d/vps.conf "https://raw.github.com/ccpbcrawler/autoscript/master/conf/vps.conf"
 sed -i 's/listen = \/var\/run\/php5-fpm.sock/listen = 127.0.0.1:9000/g' /etc/php5/fpm/pool.d/www.conf
@@ -166,14 +166,15 @@ service vnstat restart
 # download script
 cd
 
-curl https://mega.nz/#!g9gHhbbY > /usr/bin/user-add
-curl https://mega.nz/#!Z5plEBoZ > /usr/bin/trial
-curl https://mega.nz/#!d1xiSLSC > /usr/bin/user-list
-curl https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/97e4edcfa11486376fb1c5b64d7b52696495cecd/user-login > /usr/bin/user-login
-curl https://mega.nz/#!owJy3bhA > /usr/bin/renew
-curl https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/f8ebee11de4256233de6ffe347d2cc8949472fb5/minggat > /usr/bin/minggat
-curl https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/master/gusur > /usr/bin/gusur
-curl https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/4d23ee7a313d28b61284a68178e48f1576f071ad/menu > /usr/bin/menu
+curl "https://github.com/creatingdummy/Source/blob/master/user-add.sh?raw=true" > /usr/bin/user-add
+curl "https://github.com/creatingdummy/CreatingDummY_Vpn/blob/master/trial?raw=true" > /usr/bin/trial
+curl "https://github.com/creatingdummy/CreatingDummY_Vpn/blob/master/user-list?raw=true" > /usr/bin/user-list
+curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/97e4edcfa11486376fb1c5b64d7b52696495cecd/user-login" > /usr/bin/user-login
+curl "https://github.com/creatingdummy/CreatingDummY_Vpn/blob/master/renew?raw=true" > /usr/bin/renew
+curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/f8ebee11de4256233de6ffe347d2cc8949472fb5/minggat" > /usr/bin/minggat
+curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/master/gusur" > /usr/bin/gusur
+curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/4d23ee7a313d28b61284a68178e48f1576f071ad/menu" > /usr/bin/menu
+wget -O speedtest-cli "https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py"
 
 cd /usr/bin
 chmod +x user-add
@@ -184,30 +185,11 @@ chmod +x trial
 chmod +x minggat
 chmod +x gusur
 chmod +x menu
+chmod +x speedtest_cli.py
 cd
 echo "0 0 * * * root /usr/bin/gusur" >> /etc/crontab
 service cron restart
 
-# downlaod script
-cd
-wget -O speedtest-cli "https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py"
-wget -O bench-network.sh "https://raw.github.com/ccpbcrawler/autoscript/master/conf/bench-network.sh"
-wget -O ps_mem.py "https://raw.github.com/pixelb/ps_mem/master/ps_mem.py"
-wget -O limit.sh "https://raw.github.com/ccpbcrawler/autoscript/master/conf/limit.sh"
-wget -O user-login.sh "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/freak/user-login.sh"
-wget -O user-expired.sh "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/freak/user-expired.sh"
-#wget -O userlimit.sh "https://raw.githubusercontent.com/suryadewa/fornesiavps/fns/limit.sh"
-wget -O user-list.sh "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/freak/user-list.sh"
-wget -O /etc/issue.net "https://raw.githubusercontent.com/creatingdummy/FNS_Debian7/fornesia.com/null/banner"
-echo "0 0 * * * root /root/user-expired.sh" > /etc/cron.d/user-expired
-sed -i '$ i\screen -AmdS limit /root/limit.sh' /etc/rc.local
-chmod +x bench-network.sh
-chmod +x speedtest_cli.py
-chmod +x ps_mem.py
-chmod +x user-login.sh
-chmod +x user-expired.sh
-chmod +x user-limit.sh
-chmod +x limit.sh
 
 # finalation
 chown -R www-data:www-data /home/vps/public_html
