@@ -1,5 +1,5 @@
 #!/bin/bash
-# Enter [q] to quit! anyway, me, 'DummY' not giving any warranty & responsibility to anything! and to any damage on your system. proceed at your own risk.
+# Enter [q] to quit! anyway, me, 'toekang' not giving any warranty & responsibility to anything! and to any damage on your system. proceed at your own risk.
 function s3 { sleep 3; }; 
 function t { cd ~; ./tshvdp; }; 
 function i_t { executable=$1; apt-get update; apt-get install $1 -y; } ; function p_i { echo; echo -e "\033[1;37m$1 
