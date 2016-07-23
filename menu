@@ -31,12 +31,12 @@ read -p "choose command 1-6 : " Select
 case "$Select" in
 	"1" )
 	clear
-	user-list
+	./user-list
 	exit
 		;;
 	"2" )
 	clear
-	userlogin.sh
+	./userlogin.sh
 	exit
 		;;
 	"3" )
@@ -46,11 +46,12 @@ case "$Select" in
 		;;
 	"4" )
 	clear
-	userDeleted
+	./userDeleted
 	exit
         "5" )
 	 ./autokill.sh
 	 exit
+	 	;;
         "6" )
 	 clear
 	 exit
