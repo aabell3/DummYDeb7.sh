@@ -41,7 +41,7 @@ case "$Select" in
 		;;
 	"3" )
 	clear
-	userlimit.sh
+	./userlimit.sh
 	exit
 		;;
 	"4" )
@@ -49,7 +49,7 @@ case "$Select" in
 	userDeleted
 	exit
         "5" )
-	 autokill
+	 ./autokill.sh
 	 exit
         "6" )
 	 clear
