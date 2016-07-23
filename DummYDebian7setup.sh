@@ -1,22 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
-#############################################
-# Debian 7
-# script By Fadhil Morshidi
-# Full Setup By Mr's Dummy
-#############################################
-
+# initialisasi var
 export DEBIAN_FRONTEND=noninteractive
 OS=`uname -m`;
 MYIP=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0'`;
 MYIP2="s/xxxxxxxxx/$MYIP/g";
-ether=`ifconfig | cut -c 1-8 | sort | uniq -u | grep venet0 | grep -v venet0:`
-if [ "$ether" = "" ]; then
-        ether=eth0
-fi
 
-
-function setup_basic {
 # go to root
 cd
 
@@ -28,14 +17,14 @@ sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 apt-get update;apt-get -y install wget curl;
 
 # set time GMT +7
-ln -fs /usr/share/zoneinfo/Asia/Malaysia /etc/localtime
+ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
 # set locale
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 service ssh restart
 
 # set repo
-wget -O /etc/apt/sources.list "https://raw.githubusercontent.com/creatingdummy/DummYDeb7.sh/master/sources.list"
+wget -O /etc/apt/sources.list "https://raw.github.com/yurisshOS/debian7os/master/sources.list.debian7"
 wget "http://www.dotdeb.org/dotdeb.gpg"
 wget "http://www.webmin.com/jcameron-key.asc"
 cat dotdeb.gpg | apt-key add -;rm dotdeb.gpg
@@ -64,30 +53,19 @@ sysv-rc-conf exim4 off
 
 # update apt-file
 apt-file update
-# download script
+
+# setting vnstat
+vnstat -u -i venet0
+service vnstat restart
+
+# install screenfetch
 cd
-wget -O speedtest_cli.py "https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py"
-wget -O bench-network.sh "https://raw.github.com/yurisshOS/debian7os/master/bench-network.sh"
-wget -O ps_mem.py "https://raw.github.com/pixelb/ps_mem/master/ps_mem.py"
-wget -O dropmon "https://raw.github.com/yurisshOS/debian7os/master/dropmon.sh"
-wget -O userlogin.sh "https://raw.github.com/yurisshOS/debian7os/master/userlogin.sh"
-wget -O userexpired.sh "https://raw.github.com/yurisshOS/debian7os/master/userexpired.sh"
-wget -O expire.sh "https://raw.github.com/yurisshOS/debian7os/master/expire.sh"
-echo "@reboot root /root/userexpired.sh" > /etc/cron.d/userexpired
-echo "0 */6 * * * root /sbin/reboot" > /etc/cron.d/reboot
-echo "* * * * * service dropbear restart" > /etc/cron.d/dropbear
-chmod +x bench-network.sh
-chmod +x speedtest_cli.py
-chmod +x ps_mem.py
+wget 'https://raw.githubusercontent.com/KittyKatt/screenFetch/master/screenfetch-dev'
+mv screeftech-dev /usr/bin/screenfetch
+chmod +x /usr/bin/screenfetch
+echo "clear" >> .profile
+echo "screenfetch" >> .profile
 
-clear
-
-echo ""
-echo "Basic installation Done"
-echo ""
-}
-
-function setup_nginx {
 # install webserver
 cd
 rm /etc/nginx/sites-enabled/default
@@ -98,23 +76,92 @@ echo "<pre>Modified by Yurissh OpenSource</pre>" > /home/vps/public_html/index.h
 echo "<?php phpinfo(); ?>" > /home/vps/public_html/info.php
 wget -O /etc/nginx/conf.d/vps.conf "https://raw.github.com/yurisshOS/debian7os/master/vps.conf"
 sed -i 's/listen = \/var\/run\/php5-fpm.sock/listen = 127.0.0.1:9000/g' /etc/php5/fpm/pool.d/www.conf
-chown -R www-data:www-data /home/vps/public_html
 service php5-fpm restart
 service nginx restart
-clear
 
-echo ""
-echo "Nginx webserver insttalation done  http://$MYIP:81/"
-echo ""
-} # End function 
+# install openvpn
+wget -O /etc/openvpn/openvpn.tar "https://raw.github.com/yurisshOS/debian7os/master/openvpn-debian.tar"
+cd /etc/openvpn/
+tar xf openvpn.tar
+wget -O /etc/openvpn/1194.conf "https://raw.github.com/yurisshOS/debian7os/master/1194.conf"
+service openvpn restart
+sysctl -w net.ipv4.ip_forward=1
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+wget -O /etc/iptables.up.rules "https://raw.github.com/yurisshOS/debian7os/master/iptables.up.rules"
+sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.local
+sed -i $MYIP2 /etc/iptables.up.rules;
+iptables-restore < /etc/iptables.up.rules
+service openvpn restart
 
-function setup_vnstat {
-# setting vnstat
-vnstat -u -i $ether
-echo "MAILTO=root" > /etc/cron.d/vnstat
-echo "*/5 * * * * root /usr/sbin/vnstat.cron" >> /etc/cron.d/vnstat
-sed -i "s/eth0/$ether/" /etc/sysconfig/vnstat
-service vnstat restart
+# configure openvpn client config
+cd /etc/openvpn/
+wget -O /etc/openvpn/1194-client.ovpn "https://raw.github.com/yurisshOS/debian7os/master/1194-client.conf"
+sed -i $MYIP2 /etc/openvpn/1194-client.ovpn;
+PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n 1`;
+useradd -M -s /bin/false YurisshOS
+echo "dummy:$PASS" | chpasswd
+echo "username" >> pass.txt
+echo "password" >> pass.txt
+tar cf client.tar 1194-client.ovpn pass.txt
+cp client.tar /home/vps/public_html/
+cd
+
+# install badvpn
+wget -O /usr/bin/badvpn-udpgw "https://raw.github.com/yurisshOS/debian7os/master/badvpn-udpgw"
+if [ "$OS" == "x86_64" ]; then
+  wget -O /usr/bin/badvpn-udpgw "https://raw.github.com/yurisshOS/debian7os/master/badvpn-udpgw64"
+fi
+sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
+chmod +x /usr/bin/badvpn-udpgw
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
+
+
+# install mrtg
+wget -O /etc/snmp/snmpd.conf "https://raw.github.com/yurisshOS/debian7os/master/snmpd.conf"
+wget -O /root/mrtg-mem.sh "https://raw.github.com/yurisshOS/debian7os/master/mrtg-mem.sh"
+chmod +x /root/mrtg-mem.sh
+cd /etc/snmp/
+sed -i 's/TRAPDRUN=no/TRAPDRUN=yes/g' /etc/default/snmpd
+service snmpd restart
+snmpwalk -v 1 -c public localhost 1.3.6.1.4.1.2021.10.1.3.1
+mkdir -p /home/vps/public_html/mrtg
+cfgmaker --zero-speed 100000000 --global 'WorkDir: /home/vps/public_html/mrtg' --output /etc/mrtg.cfg public@localhost
+curl "https://raw.github.com/yurisshOS/debian7os/master/mrtg.conf" >> /etc/mrtg.cfg
+sed -i 's/WorkDir: \/var\/www\/mrtg/# WorkDir: \/var\/www\/mrtg/g' /etc/mrtg.cfg
+sed -i 's/# Options\[_\]: growright, bits/Options\[_\]: growright/g' /etc/mrtg.cfg
+indexmaker --output=/home/vps/public_html/mrtg/index.html /etc/mrtg.cfg
+if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
+if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
+if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
+cd
+
+# setting port ssh
+#sed -i '/Port 22/a Port  143' /etc/ssh/sshd_config
+#sed -i '/Port 22/a Port  80' /etc/ssh/sshd_config
+sed -i 's/Port 22/Port  22/g' /etc/ssh/sshd_config
+sed -i 's/#Banner/Banner/g' /etc/ssh/sshd_config
+service ssh restart
+
+# install dropbear
+apt-get -y install dropbear
+sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
+sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=443/g' /etc/default/dropbear
+sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS=""/g' /etc/default/dropbear
+echo "/bin/false" >> /etc/shells
+echo "/usr/sbin/nologin" >> /etc/shells
+service ssh restart
+service dropbear restart
+
+# upgrade dropbear 2014
+apt-get install zlib1g-dev
+wget https://matt.ucc.asn.au/dropbear/releases/dropbear-2014.66.tar.bz2
+bzip2 -cd dropbear-2014.66.tar.bz2  | tar xvf -
+cd dropbear-2014.66
+./configure
+make && make install
+mv /usr/sbin/dropbear /usr/sbin/dropbear1
+ln /usr/local/sbin/dropbear /usr/sbin/dropbear
+service dropbear restart
 
 # install vnstat gui
 cd /home/vps/public_html/
@@ -129,547 +176,120 @@ sed -i "s/\$language = 'nl';/\$language = 'en';/g" config.php
 sed -i 's/Internal/Internet/g' config.php
 sed -i '/SixXS IPv6/d' config.php
 cd
-clear
 
-echo ""
-echo "Done install vnstat  http://$MYIP:81/vnstat"
-echo ""
-} # End function 
-
-function setup_screenfetch {
-# install screenfetch
-cd
-wget 'https://raw.githubusercontent.com/KittyKatt/screenFetch/master/screenfetch-dev'
-mv screeftech-dev /usr/bin/screenfetch
-chmod +x /usr/bin/screenfetch
-echo "clear" >> .profile
-echo "screenfetch" >> .profile
-clear
-
-echo ""
-echo "Screenfetch installation done"
-echo ""
-} # End function 
-
-function setup_openvpn {
-if [ $USER != 'root' ]; then
-	echo "Sorry, you need to run this as root"
-	exit
-fi
-
-
-if [ ! -e /dev/net/tun ]; then
-    echo "TUN/TAP is not available"
-    exit
-fi
-
-# Try to get our IP from the system and fallback to the Internet.
-# I do this to make the script compatible with NATed servers (lowendspirit.com)
-# and to avoid getting an IPv6.
-IP=$(ifconfig | grep 'inet addr:' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | cut -d: -f2 | awk '{ print $1}' | head -1)
-if [ "$IP" = "" ]; then
-        IP=$(wget -qO- ipv4.icanhazip.com)
-fi
-
-if [ -e /etc/openvpn/server.conf ]; then
-	while :
-	do
-	clear
-		echo "Looks like OpenVPN is already installed"
-		echo "What do you want to do?"
-		echo ""
-		echo "1) Remove OpenVPN"
-		echo "2) Exit"
-		echo ""
-		read -p "Select an option [1-4]:" option
-		case $option in
-			1) 
-			apt-get remove --purge -y openvpn
-			rm -rf /etc/openvpn
-			rm -rf /usr/share/doc/openvpn
-			sed -i '/--dport 53 -j REDIRECT --to-port 1194/d' /etc/rc.local
-			sed -i '/iptables -t nat -A POSTROUTING -s 10.8.0.0/d' /etc/rc.local
-			echo ""
-			echo "OpenVPN removed!"
-			exit
-			;;
-			2) exit;;
-		esac
-	done
-else
-	echo 'Welcome To quick OpenVPN "road warrior" installer'
-	echo "script Modify By Mr'Dummy"
-	echo ""
-	# OpenVPN setup and first user creation
-	echo "First I Need To Know Your IPv4 Address For OpenVPN"
-	echo "listening to."
-	read -p "IP address: " -e -i $IP IP
-	echo ""
-	echo "Port For OpenVPN?"
-	read -p "Port: " -e -i 1194 PORT
-	echo ""
-	echo "Are You Want Install OpenVPN At port 53?"
-	echo "Connect to restrictive networks"
-	read -p "Listen port 53 [y/n]:" -e -i y ALTPORT
-	echo ""
-	echo "Name Your Cert Client"
-	echo "Please,Use One Name Only"
-	read -p "Nama Client: " -e -i client CLIENT
-	echo ""
-	echo "Okey thats all what i need..i Will setup Your OpenVPN server NOW"
-read -n1 -r -p "Press any key to continue..."
-		if [[ "$OS" = 'debian' ]]; then
-		apt-get update
-		apt-get install openvpn iptables openssl ca-certificates -y
-	else
-		# Else, the distro is CentOS
-		yum install epel-release -y
-		yum install openvpn iptables openssl wget ca-certificates -y
-	fi
-	# An old version of easy-rsa was available by default in some openvpn packages
-	if [[ -d /etc/openvpn/easy-rsa/ ]]; then
-		rm -rf /etc/openvpn/easy-rsa/
-	fi
-	# Get easy-rsa
-	wget -O ~/EasyRSA-3.0.1.tgz https://github.com/OpenVPN/easy-rsa/releases/download/3.0.1/EasyRSA-3.0.1.tgz
-	tar xzf ~/EasyRSA-3.0.1.tgz -C ~/
-	mv ~/EasyRSA-3.0.1/ /etc/openvpn/
-	mv /etc/openvpn/EasyRSA-3.0.1/ /etc/openvpn/easy-rsa/
-	chown -R root:root /etc/openvpn/easy-rsa/
-	rm -rf ~/EasyRSA-3.0.1.tgz
-	cd /etc/openvpn/easy-rsa/
-	# Create the PKI, set up the CA, the DH params and the server + client certificates
-	./easyrsa init-pki
-	./easyrsa --batch build-ca nopass
-	./easyrsa gen-dh
-	./easyrsa build-server-full server nopass
-	./easyrsa build-client-full $CLIENT nopass
-	./easyrsa gen-crl
-	# Move the stuff we need
-	cp pki/ca.crt pki/private/ca.key pki/dh.pem pki/issued/server.crt pki/private/server.key /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn
-	# CRL is read with each client connection, when OpenVPN is dropped to nobody
-	chown nobody:$GROUPNAME /etc/openvpn/crl.pem
-	# Generate key for tls-auth
-	openvpn --genkey --secret /etc/openvpn/ta.key
-        # Generate server.conf
-	echo "port $PORT
-cat > /etc/openvpn/server.conf <<-END
-port 1194
-proto tcp
-dev tun
-tun-mtu 1500
-tun-mtu-extra 32
-mssfix 1450
-ca /etc/openvpn/ca.crt
-cert /etc/openvpn/server.crt
-key /etc/openvpn/server.key
-dh /etc/openvpn/dh1024.pem
-plugin /usr/lib/openvpn/openvpn-auth-pam.so /etc/pam.d/login
-client-cert-not-required
-username-as-common-name
-server 10.8.0.0 255.255.255.0
-ifconfig-pool-persist ipp.txt
-push "redirect-gateway def1"
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
-push "route-method exe"
-push "route-delay 2"
-keepalive 5 30
-cipher AES-128-CBC
-comp-lzo
-persist-key
-persist-tun
-status server-vpn.log
-verb 3
-END
-
-	cd /etc/openvpn/EasyRSA/3.0.1/keys
-	cp ca.crt ca.key dh1024.pem server.crt server.key /etc/openvpn
-	sed -i "s/port 1194/port $PORT/" /etc/openvpn/server.conf
-	# Listen at port 53 too if user wants that
-	if [ $ALTPORT = 'y' ]; then
-		iptables -t nat -A PREROUTING -p udp -d $IP --dport 53 -j REDIRECT --to-port 1194
-		sed -i "/# By default this script does nothing./a\iptables -t nat -A PREROUTING -p udp -d $IP --dport 53 -j REDIRECT --to-port 1194" /etc/rc.local
-	fi
-	# Enable net.ipv4.ip_forward for the system
-	sed -i 's|#net.ipv4.ip_forward=1|net.ipv4.ip_forward=1|' /etc/sysctl.conf
-	# Avoid an unneeded reboot
-	echo 1 > /proc/sys/net/ipv4/ip_forward
-	# Set iptables
-	if [ $(ifconfig | cut -c 1-8 | sort | uniq -u | grep venet0 | grep -v venet0:) = "venet0" ];then
-      		iptables -t nat -A POSTROUTING -o venet0 -j SNAT --to-source $IP
-	else
-      		iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -j SNAT --to $IP
-      		iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
-	fi	
-	sed -i "/# By default this script does nothing./a\ip10tables -t nat -A POSTROUTING -s 10.8.0.0/24 -j SNAT --to $IP" /etc/rc.local
-	iptables-save
-	# And finally, restart OpenVPN
-	/etc/init.d/openvpn restart
-	# Let's generate the client config
-	mkdir ~/ovpn-$CLIENT
-	# Try to detect a NATed connection and ask about it to potential LowEndSpirit
-	# users
-	EXTERNALIP=$(wget -qO- ipv4.icanhazip.com)
-	if [ "$IP" != "$EXTERNALIP" ]; then
-		echo ""
-		echo "Looks like your server is behind a NAT!"
-		echo ""
-		echo "If your server is NATed (LowEndSpirit), I need to know the external IP"
-		echo "If that's not the case, just ignore this and leave the next field blank"
-		read -p "External IP: " -e USEREXTERNALIP
-		if [ $USEREXTERNALIP != "" ]; then
-			IP=$USEREXTERNALIP
-		fi
-	fi
-	# IP/port set on the default client.conf so we can add further users
-	# without asking for them
-
-cat >> ~/ovpn-$CLIENT/$CLIENT.conf <<-END
-client
-proto tcp
-persist-key
-persist-tun
-dev tun
-pull
-comp-lzo
-ns-cert-type server
-verb 3
-mute 2
-mute-replay-warnings
-auth-user-pass
-redirect-gateway def1
-script-security 2
-route-method exe
-route-delay 2
-remote $IP $PORT
-cipher AES-128-CBC
-ca [inline]
-END
-
-	cp /etc/openvpn/easy-rsa/2.0/keys/ca.crt ~/ovpn-$CLIENT
-
-	cd ~/ovpn-$CLIENT
-
-	cp $CLIENT.conf $CLIENT.ovpn
-
-
-	echo "<ca>" >> $CLIENT.ovpn
-	cat ca.crt >> $CLIENT.ovpn
-	echo -e "</ca>\n" >> $CLIENT.ovpn
-
-	tar -czf ../ovpn-$CLIENT.tar.gz $CLIENT.conf ca.crt $CLIENT.ovpn
-	cd ~/
-	rm -rf ovpn-$CLIENT
-	echo ""
-	echo "Selesai!"
-	echo ""
-	echo "Your client config is available at ~/ovpn-$CLIENT.tar.gz"
-fi
-	clear
-
-echo ""
-echo "OpenVPN sudah terinstall http://$MYIP:81/client.tar atau /root/client.tar"
-echo ""
-} # End function 
-
-function setup_badvpn {
-# install badvpn
-wget -O /usr/bin/badvpn-udpgw "https://raw.github.com/yurisshOS/debian7os/master/badvpn-udpgw"
-if [ "$OS" == "x86_64" ]; then
-  wget -O /usr/bin/badvpn-udpgw "https://raw.github.com/yurisshOS/debian7os/master/badvpn-udpgw64"
-fi
-sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
-chmod +x /usr/bin/badvpn-udpgw
-screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
-clear
-
-echo ""
-echo "Badvpn sudah terinstall"
-echo ""
-} # End function 
-
-function setup_mrtg {
-# install mrtg
-wget -O /etc/snmp/snmpd.conf "http://aemrhabibin.tk:81/Script/snmpd.conf"
-wget -O /root/mrtg-mem.sh "http://aemrhabibin.tk:81/Script/mrtg-mem.sh"
-chmod +x /root/mrtg-mem.sh
-cd /etc/snmp/
-sed -i 's/TRAPDRUN=no/TRAPDRUN=yes/g' /etc/default/snmpd
-service snmpd restart
-snmpwalk -v 1 -c public localhost 1.3.6.1.4.1.2021.10.1.3.1
-mkdir -p /home/vps/public_html/mrtg
-cfgmaker --zero-speed 100000000 --global 'WorkDir: /home/vps/public_html/mrtg' --output /etc/mrtg.cfg public@localhost
-curl "http://aemrhabibin.tk:81/Script/mrtg.conf" >> /etc/mrtg.cfg
-sed -i 's/WorkDir: \/var\/www\/mrtg/# WorkDir: \/var\/www\/mrtg/g' /etc/mrtg.cfg
-sed -i 's/# Options\[_\]: growright, bits/Options\[_\]: growright/g' /etc/mrtg.cfg
-indexmaker --output=/home/vps/public_html/mrtg/index.html /etc/mrtg.cfg
-if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
-if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
-if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
-cd
-clear
-
-echo ""
-echo "Mrtg sudah terinstall http://$MYIP:81/mrtg"
-echo ""
-} # End function 
-
-function setup_openssh {
-# setting port ssh
-sed -i '/Port 22/a Port  143' /etc/ssh/sshd_config
-sed -i '/Port 22/a Port  80' /etc/ssh/sshd_config
-sed -i 's/Port 22/Port  22/g' /etc/ssh/sshd_config
-service ssh restart
-clear
-
-echo ""
-echo "Openssh sudah terinstall dengan port 22,80,143"
-echo "" 
-} # End function 
-
-function setup_dropbear {
-# install dropbear
-apt-get -y install dropbear
-sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=443/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS=""/g' /etc/default/dropbear
-echo "/bin/false" >> /etc/shells
-echo "/usr/sbin/nologin" >> /etc/shells
-service ssh restart
-service dropbear restart
-clear
-
-echo ""
-echo "dropbear sudah terinstall dengan port 443"
-echo ""
-} # End function 
-
-function setup_fail2ban {
 # install fail2ban
 apt-get -y install fail2ban;service fail2ban restart
-clear
 
-echo ""
-echo "fail2ban sudah terinstall"
-echo ""
-
-} # End function 
-
-function setup_squid {
 # install squid3
 apt-get -y install squid3
 wget -O /etc/squid3/squid.conf "https://raw.github.com/yurisshOS/debian7os/master/squid3.conf"
 sed -i $MYIP2 /etc/squid3/squid.conf;
 service squid3 restart
-clear
 
-echo ""
-echo "Squid sudah terinstall dengan port 8080"
-echo ""
-} # End function 
-
-function setup_webmin {
 # install webmin
 cd
-wget http://prdownloads.sourceforge.net/webadmin/webmin_1.690_all.deb
-dpkg -i --force-all webmin_1.690_all.deb;
+wget http://prdownloads.sourceforge.net/webadmin/webmin_1.710_all.deb
+dpkg -i --force-all webmin_1.710_all.deb;
 apt-get -y -f install;
-rm /root/webmin_1.690_all.deb
+rm /root/webmin_1.710_all.deb
 service webmin restart
 service vnstat restart
+
+# download script
+cd
+wget -O speedtest_cli.py "https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py"
+wget -O bench-network.sh "https://raw.github.com/yurisshOS/debian7os/master/bench-network.sh"
+wget -O ps_mem.py "https://raw.github.com/pixelb/ps_mem/master/ps_mem.py"
+wget -O dropmon "https://raw.github.com/yurisshOS/debian7os/master/dropmon.sh"
+wget -O userlogin.sh "https://raw.github.com/yurisshOS/debian7os/master/userlogin.sh"
+wget -O userexpired.sh "https://raw.github.com/yurisshOS/debian7os/master/userexpired.sh"
+wget -O userlimit.sh "https://raw.github.com/yurisshOS/debian7os/master/userlimit.sh"
+wget -O expire.sh "https://raw.github.com/yurisshOS/debian7os/master/expire.sh"
+wget -O autokill.sh "https://raw.github.com/yurisshOS/debian7os/master/autokill.sh"
+wget -O /etc/issue.net "https://raw.github.com/yurisshOS/debian7os/master/banner"
+echo "@reboot root /root/userexpired.sh" > /etc/cron.d/userexpired
+echo "@reboot root /root/userlimit.sh" > /etc/cron.d/userlimit
+echo "0 */12 * * * root /sbin/reboot" > /etc/cron.d/reboot
+echo "* * * * * service dropbear restart" > /etc/cron.d/dropbear
+echo "@reboot root /root/autokill.sh" > /etc/cron.d/autokill
+sed -i '$ i\screen -AmdS check /root/autokill.sh' /etc/rc.local
+chmod +x bench-network.sh
+chmod +x speedtest_cli.py
+chmod +x ps_mem.py
+chmod +x userlogin.sh
+chmod +x userexpired.sh
+chmod +x userlimit.sh
+chmod +x autokill.sh
+chmod +x dropmon
+chmod +x expire.sh
+
+# finishing
+chown -R www-data:www-data /home/vps/public_html
+service cron restart
+service nginx start
+service php-fpm start
+service vnstat restart
+service openvpn restart
+service snmpd restart
+service ssh restart
+service dropbear restart
+service fail2ban restart
+service squid3 restart
+service webmin restart
+rm -rf ~/.bash_history && history -c
+echo "unset HISTFILE" >> /etc/profile
+
+# info
 clear
-
-echo ""
-echo "webmin sudah terinstall http://$MYIP:10000/"
-echo ""
-} # End function 
-
-function setup_pptp {
-
-#!/bin/bash
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
-export PATH
- 
-clear
-CUR_DIR=$(pwd)
- 
-if [ $(id -u) != "0" ]; then
-    printf "Error: You must be root to run this script!"
-    exit 1
-fi
- 
-apt-get -y update
-apt-get -y autoremove pptpd
-apt-get -y install pptpd iptables
- 
-sed -i '/exit 0/d' /etc/rc.local
- 
-mknod /dev/ppp c 108 0
-echo "mknod /dev/ppp c 108 0" >> /etc/rc.local
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-sysctl -p
-echo echo 1 \> \/proc\/sys\/net\/ipv4\/ip_forward >> /etc/rc.local
- 
-echo exit 0 >> /etc/rc.local
- 
-cat >>/etc/pptpd.conf<<EOF
-localip 172.16.36.1
-remoteip 172.16.36.2-254
-EOF
- 
-cp /etc/ppp/pptpd-options /etc/ppp/pptpd-options.old
-cat >/etc/ppp/pptpd-options<<EOF
-name pptpd
-refuse-pap
-refuse-chap
-refuse-mschap
-require-mschap-v2
-require-mppe-128
-ms-dns 8.8.8.8
-ms-dns 8.8.4.4
-proxyarp
-#debug
-#dump
-lock
-nobsdcomp
-novj
-novjccomp
-logfile /var/log/pptpd.log
-EOF
- 
-echo vpn pptpd 123 \* >> /etc/ppp/chap-secrets
- 
-iptables-save > /etc/iptables.down.rules
- 
-n=`ifconfig  | grep 'venet0:0' | awk 'NR==1 { print $1}'`
-if test "$n" == venet0:0; then
-# For OpenVZ
-iptables -t nat -D POSTROUTING -s 172.16.36.0/24 -j SNAT --to-source `ifconfig  | grep 'inet addr:'| grep -v '127\.0\.0\.' | grep -v '10\.' | grep -v '172\.' | grep -v '192\.' | cut -d: -f2 | awk 'NR==1 { print $1}'`
-iptables -t nat -A POSTROUTING -s 172.16.36.0/24 -j SNAT --to-source `ifconfig  | grep 'inet addr:'| grep -v '127\.0\.0\.' | grep -v '10\.' | grep -v '172\.' | grep -v '192\.' | cut -d: -f2 | awk 'NR==1 { print $1}'`
-else
-# For Xen and KVM
-iptables -t nat -D POSTROUTING -s 172.16.36.0/24 -o eth0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 172.16.36.0/24 -o eth0 -j MASQUERADE
-fi
- 
-iptables -D FORWARD -p tcp --syn -s 172.16.36.0/24 -j TCPMSS --set-mss 1356
-iptables -A FORWARD -p tcp --syn -s 172.16.36.0/24 -j TCPMSS --set-mss 1356
- 
-iptables-save > /etc/iptables.up.rules
- 
-cat >>/etc/network/if-pre-up.d/iptables<<EOF
-#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules
-EOF
- 
-chmod +x /etc/network/if-pre-up.d/iptables
- 
-/etc/init.d/pptpd restart
-} # End function 
-
-#### Main program begins ####
-
-# Show Menu
-if [ ! -n "$1" ]; then
-    echo ""
-    echo -e  "\033[35;1mPilih dari opsi di bawah untuk menggunakan script ini: \033[0m"
-
-    echo -n "$0"
-    echo -ne "\033[36m basic\033[0m"
-    echo     " - Install basic (jalankan ini untuk pertama kali)"
-
-    echo -n "$0"
-    echo -ne "\033[36m nginx\033[0m"
-    echo     " - Install nginx webserver http://$MYIP:81"
-
-    echo -n  "$0"
-    echo -ne "\033[36m vnstat\033[0m"
-    echo     " - Install vnstat need nginx"
-
-    echo -n "$0"
-    echo -ne "\033[36m screenfetch\033[0m"
-    echo     " - Install screenfetch"
-
-    echo -n "$0"
-    echo -ne "\033[36m openvpn\033[0m"
-    echo     " - Install openvpn tcp port 1194"
-
-    echo -n "$0"
-    echo -ne "\033[36m badvpn\033[0m"
-    echo     " - Install badvpn"
-
-    echo -n "$0"
-    echo -ne "\033[36m mrtg\033[0m"
-    echo     " - Install mrtg need nginx"
-
-    echo -n "$0"
-    echo -ne "\033[36m openssh\033[0m"
-    echo     " - Install openssh port 22, 80, 143"
-
-    echo -n "$0"
-    echo -ne "\033[36m dropbear\033[0m"
-    echo     " - Install dropbear port 109, 110, 443"
-
-    echo -n "$0"
-    echo -ne "\033[36m fail2ban\033[0m"
-    echo     " - Install fail2ban"
-
-    echo -n "$0"
-    echo -ne "\033[36m webmin\033[0m"
-    echo     " - Install webmin"
-
-    echo -n "$0"
-    echo -ne "\033[36m squid\033[0m"
-    echo     " - Install squid 3 limit ip"
-
-    echo -n "$0"
-    echo -ne "\033[36m pptp\033[0m"
-    echo     " - Install pptpd vpn"
-
-    echo ""
-    exit
-fi
-# End Show Menu
-
-case $1 in
-basic)
-    setup_basic
-    ;;
-nginx)
-    setup_nginx
-    ;;
-vnstat)
-    setup_vnstat
-    ;;
-screenfetch)
-    setup_screenfetch
-    ;;
-openvpn)
-    setup_openvpn
-    ;;
-badvpn)
-    setup_badvpn
-    ;;
-mrtg)
-	setup_mrtg
-    ;;
-openssh)
-    setup_openssh
-    ;;
-dropbear)
-    setup_dropbear
-    ;;
-fail2ban)
-    setup_fail2band
-    ;;
-squid)
-    setup_squid
-    ;;
-webmin)
-    setup_webmin
-    ;;
-pptp)
-    setup_pptp
-    ;;
-esac
+echo ""  | tee -a log-install.txt
+echo "AUTOSCRIPT INCLUDES" | tee log-install.txt
+echo "===============================================" | tee -a log-install.txt
+echo ""  | tee -a log-install.txt
+echo "Service"  | tee -a log-install.txt
+echo "-------"  | tee -a log-install.txt
+echo "OpenVPN  : TCP 1194 (client config : http://$MYIP:81/client.tar)"  | tee -a log-install.txt
+echo "OpenSSH  : 22, 80, 143"  | tee -a log-install.txt
+echo "Dropbear : 443, 110, 109"  | tee -a log-install.txt
+echo "Squid3   : 8080 (limit to IP SSH)"  | tee -a log-install.txt
+echo "badvpn   : badvpn-udpgw port 7300"  | tee -a log-install.txt
+echo "nginx    : 81"  | tee -a log-install.txt
+echo ""  | tee -a log-install.txt
+echo "Tools"  | tee -a log-install.txt
+echo "-----"  | tee -a log-install.txt
+echo "axel"  | tee -a log-install.txt
+echo "bmon"  | tee -a log-install.txt
+echo "htop"  | tee -a log-install.txt
+echo "iftop"  | tee -a log-install.txt
+echo "mtr"  | tee -a log-install.txt
+echo "rkhunter"  | tee -a log-install.txt
+echo "nethogs: nethogs venet0"  | tee -a log-install.txt
+echo ""  | tee -a log-install.txt
+echo "Script"  | tee -a log-install.txt
+echo "------"  | tee -a log-install.txt
+echo "screenfetch"  | tee -a log-install.txt
+echo "./ps_mem.py"  | tee -a log-install.txt
+echo "./speedtest_cli.py --share"  | tee -a log-install.txt
+echo "./bench-network.sh"  | tee -a log-install.txt
+echo "./userlogin.sh" | tee -a log-install.txt
+echo "./userexpired.sh" | tee -a log-install.txt
+echo "./userlimit.sh 2 [ini utk melimit max 2 login]" | tee -a log-install.txt
+echo "sh dropmon [port] contoh: sh dropmon 443" | tee -a log-install.txt
+echo ""  | tee -a log-install.txt
+echo "Fitur lain"  | tee -a log-install.txt
+echo "----------"  | tee -a log-install.txt
+echo "Webmin   : https://$MYIP:10000/"  | tee -a log-install.txt
+echo "vnstat   : http://$MYIP:81/vnstat/"  | tee -a log-install.txt
+echo "MRTG     : http://$MYIP:81/mrtg/"  | tee -a log-install.txt
+echo "Timezone : Asia/malaysia"  | tee -a log-install.txt
+echo "Fail2Ban : [on]"  | tee -a log-install.txt
+echo "IPv6     : [off]"  | tee -a log-install.txt
+echo ""  | tee -a log-install.txt
+echo "Script Modified Mr's dummy"  | tee -a log-install.txt
+echo "Thanks to Original Creator Kang Arie & Mikodemos"
+echo ""  | tee -a log-install.txt
+echo "VPS AUTO REBOOT TIAP 6 JAM"  | tee -a log-install.txt
+echo "SILAHKAN REBOOT VPS ANDA"  | tee -a log-install.txt
+echo ""  | tee -a log-install.txt
+echo "==============================================="  | tee -a log-install.txt
+cd
+rm -f /root/debian7.sh
