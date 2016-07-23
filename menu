@@ -26,12 +26,15 @@ echo "2. userlogin"
 echo "3. userlimit login"
 echo "4. userDeleted"
 echo "5. speedtest "
-echo "6. exit"
+echo "6. bench-network"
+echo "7. dropmon"
+echo "8. ps_mem"
+echo "9. exit"
 read -p "choose command 1-6 : " Select
 case "$Select" in
 	"1" )
 	clear
-	autokill.sh
+	./autokill.sh
 	exit
 		;;
 	"2" )
@@ -54,7 +57,7 @@ case "$Select" in
 	 exit
 	 	;;
         "6" )
-	 bench-network.sh
+	 ./bench-network.sh
 	 exit
 		;;
 	"7" )
@@ -62,7 +65,7 @@ case "$Select" in
 	 exit
 	 	;;
 	"8" )
-	 bench-network.sh
+	 ./ps_mem.py
 	 exit
 		;;
 	"9" )
