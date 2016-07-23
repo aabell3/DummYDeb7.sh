@@ -157,26 +157,10 @@ service vnstat restart
 # download script
 cd
 
-curl "https://github.com/creatingdummy/Source/blob/master/user-add.sh?raw=true" > /usr/bin/user-add
-curl "https://github.com/creatingdummy/CreatingDummY_Vpn/blob/master/trial?raw=true" > /usr/bin/trial
-curl "https://github.com/creatingdummy/CreatingDummY_Vpn/blob/master/user-list?raw=true" > /usr/bin/user-list
-curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/97e4edcfa11486376fb1c5b64d7b52696495cecd/user-login" > /usr/bin/user-login
-curl "https://github.com/creatingdummy/CreatingDummY_Vpn/blob/master/renew?raw=true" > /usr/bin/renew
-curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/f8ebee11de4256233de6ffe347d2cc8949472fb5/minggat" > /usr/bin/minggat
-curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/master/gusur" > /usr/bin/gusur
-curl "https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/4d23ee7a313d28b61284a68178e48f1576f071ad/menu" > /usr/bin/menu
 wget -O speedtest-cli "https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py"
 wget -O /etc/issue.net "https://github.com/creatingdummy/auto/blob/master/null/banner"
 
 cd /usr/bin
-chmod +x user-add
-chmod +x user-list
-chmod +x user-login
-chmod +x renew
-chmod +x trial
-chmod +x minggat
-chmod +x gusur
-chmod +x menu
 chmod +x speedtest_cli.py
 cd
 echo "0 0 * * * root /usr/bin/gusur" >> /etc/crontab
