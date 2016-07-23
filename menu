@@ -25,8 +25,9 @@ echo "1. user-list"
 echo "2. userlogin"
 echo "3. userlimit login"
 echo "4. userDeleted"
-echo "5. exit"
-read -p "Pilih Dengan Angka [1-9] : " Select
+echo "5. autokill "
+echo "6. exit"
+read -p "choose command 1-6 : " Select
 case "$Select" in
 	"1" )
 	clear
@@ -48,10 +49,12 @@ case "$Select" in
 	userDeleted
 	exit
         "5" )
+	 autokill
+	 exit
+        "6" )
 	 clear
 	 exit
-   ;;
-	*	)
+		;;
     clear
     echo "Tiada Dalam Senarai"
     exit
