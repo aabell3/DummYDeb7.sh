@@ -48,7 +48,8 @@ case "$Select" in
 	clear
 	./userDeleted
 	exit
-        "5" )
+		;;
+	"5" )
 	 ./autokill.sh
 	 exit
 	 	;;
