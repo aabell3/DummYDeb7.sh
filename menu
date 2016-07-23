@@ -21,17 +21,17 @@ echo "System uptime : $up"
 echo ""
 echo "-----------------------------------------------------------------"
 echo "Choose Your Commad"
-echo "1. user-list"
+echo "1. autokill"
 echo "2. userlogin"
 echo "3. userlimit login"
 echo "4. userDeleted"
-echo "5. autokill "
+echo "5. speedtest "
 echo "6. exit"
 read -p "choose command 1-6 : " Select
 case "$Select" in
 	"1" )
 	clear
-	./user-list
+	autokill.sh
 	exit
 		;;
 	"2" )
@@ -46,19 +46,31 @@ case "$Select" in
 		;;
 	"4" )
 	clear
-	./userDeleted
+	./userexpired.sh
 	exit
 		;;
 	"5" )
-	 ./autokill.sh
+	 ./speedtest_cli.py
 	 exit
 	 	;;
         "6" )
-	 clear
+	 bench-network.sh
 	 exit
 		;;
+	"7" )
+	 ./dropmon
+	 exit
+	 	;;
+	"8" )
+	 bench-network.sh
+	 exit
+		;;
+	"9" )
+	 clear
+	 exit
+		;;	
     clear
-    echo "Tiada Dalam Senarai"
+    echo "No Command Detect"
     exit
     ;; 
 esac
