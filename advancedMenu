@@ -85,9 +85,9 @@ echo "===============================================" | tee -a log-install.txt
 echo "advance in auto Command[Menu]"
 echo "Script Create by Mr's dummy"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
-echo "VPS AUTO REBOOT TIAP 6 JAM"  | tee -a log-install.txt
-echo "SILAHKAN REBOOT VPS ANDA"  | tee -a log-install.txt
+echo "VPS AUTO REBOOT TIAP 48 JAM"  | tee -a log-install.txt
+echo "SILAKAN REBOOT VPS ANDA"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "==============================================="  | tee -a log-install.txt
 cd
-rm -f /root/debian7.sh
+rm -f /root/advancedMenu
