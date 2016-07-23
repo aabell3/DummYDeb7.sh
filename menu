@@ -20,60 +20,34 @@ echo "Total amount of swap : $swap MB"
 echo "System uptime : $up"
 echo ""
 echo "-----------------------------------------------------------------"
-echo "Pilih perintah di bawah ini"
-echo "1. network bench"
-echo "2. SpeedTest VPS"
-echo "3. ps_mem"
-echo "4. dropmon"
-echo "5. user login"
-echo "6. user expired"
-echo "7. user limit"
-echo "8. user list"
-echo "9. Exit"
-echo ""
+echo "Choose Your Commad"
+echo "1. user-list"
+echo "2. userlogin"
+echo "3. userlimit login"
+echo "4. userDeleted"
+echo "5. exit"
 read -p "Pilih Dengan Angka [1-9] : " Select
 case "$Select" in
 	"1" )
 	clear
-	user-add
+	user-list
 	exit
 		;;
 	"2" )
 	clear
-	user-list
+	userlogin.sh
 	exit
 		;;
 	"3" )
 	clear
-	user-login
+	userlimit.sh
 	exit
 		;;
 	"4" )
 	clear
-	renew
+	userDeleted
 	exit
-		;;
-	"5" )
-	clear
-	trial
-	exit
-		;;
-  "6" )
-	 clear
-	 speed
-	 exit
-   ;;
-  "7" )
-	 clear
-	 vnstat
-	 exit
-   ;;
-  "8" )
-	 clear
-	 reboot
-	 exit
-   ;;
-  "9" )
+        "5" )
 	 clear
 	 exit
    ;;
