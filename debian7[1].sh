@@ -1,5 +1,5 @@
 #!/bin/bash
-#CREATE BY MKSSHVPN
+#CREATE BY Mr dummy
 #NOT FOR SALE
 #MUST HAVE PERMISSION IF WANT USE THIS SCRIPT
 #THIS IS FOR EXPERIMEN ONLY
@@ -131,12 +131,10 @@ iptables -A FORWARD -p tcp --dport 25 -j REJECT
 iptables -A OUTPUT -p tcp --dport 25 -j REJECT 
 iptables-save
 
-echo "BY MKSSHVPN"
+echo "BY Mr dummy"
 echo "Torrent Port Has Block"
 echo "Webmin     :  http://ipserver:10000"
 echo "Vnstat     :  http://ipserver:81/vnstat"
 echo "Proxy Port with 80 & 7166 & 60000"
-echo "NOT FOR SALE"
 echo "THANK YOU"
-echo "BYE"
 rm debian7.sh
