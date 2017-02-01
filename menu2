@@ -2,20 +2,19 @@
 # download script
 cd
 
-curl http://192.81.215.165/repo/user-add > /usr/bin/user-add
-curl http://192.81.215.165/repo/trial > /usr/bin/trial
-curl http://192.81.215.165/repo/user-list > /usr/bin/user-list
-curl http://192.81.215.165/repo/user-login > /usr/bin/user-login
-curl http://192.81.215.165/repo/renew > /usr/bin/renew
-curl http://192.81.215.165/repo/minggat > /usr/bin/minggat
+curl https://raw.githubusercontent.com/aabell3/ngaco/master/null/usernew.sh > /usr/bin/baru
+curl https://raw.githubusercontent.com/aabell3/ngaco/master/null/cekuser.sh > /usr/bin/cek-user
+curl https://raw.githubusercontent.com/aabell3/ngaco/master/freak/user-login.sh > /usr/bin/user-login
+curl https://raw.github.com/yurisshOS/debian7os/master/autokill.sh > /usr/bin/user-kill
+curl https://raw.githubusercontent.com/yurisshOS/debian7os/master/userlimit.sh > /usr/bin/user-limit
 curl http://192.81.215.165/repo/gusur > /usr/bin/gusur
 curl https://raw.githubusercontent.com/creatingdummy/CreatingDummY_Vpn/master/menu > /usr/bin/menu
 
 cd /usr/bin
 chmod +x user-add
-chmod +x user-list
+chmod +x cek-user
 chmod +x user-login
-chmod +x renew
+chmod +x user-limit
 chmod +x trial
 chmod +x minggat
 chmod +x gusur
